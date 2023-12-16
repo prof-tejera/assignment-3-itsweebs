@@ -1,0 +1,32 @@
+input {
+    display: inline-block;
+    background-color: #1f1f1f;
+    border: 1px solid #333;
+    padding: 8px 0px 8px 16px;
+    color: #f0f0f0;
+    border-radius: 8px;
+    margin: 4px;
+    font-size: 24px;
+    text-align: center;
+    width: 64px;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
+    width: auto;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.input-label {
+    order: 2;
+    font-size: 12px;
+    color: #666;
+}
+
+.input-field {
+    order: 1;
+}
