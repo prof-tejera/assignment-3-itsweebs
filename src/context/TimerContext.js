@@ -7,52 +7,79 @@ const initialState = {
     timers: [], //store the added timers in an array
     currentTimerIndex: 0,
     isWorkoutRunning: false,
+    isWorkoutComplete: false, //added to track if the workout is complete
     nextTimerId: 0,
+    totalWorkoutTime: 0, // track the total time for all timers
 };
 
 const timerReducer = (state, action) => {
     switch (action.type) {
-        case 'ADD_TIMER': //add new timer at end of timers array
-            const newTimer = { ...action.payload, id: state.nextTimerId }; //assign a unique id to the new timer added
+        case 'ADD_TIMER': { //add new timer at the end of the timers array
+            const newTimer = {
+                ...action.payload,
+                id: state.nextTimerId, //assign a unique id to the new timer added
+                remainingTime: calculateTimerTime(action.payload), //initialize remaining time for the timer
+                isActive: false //flag to indicate if timer is currently active
+            };
+            const newTimers = [...state.timers, newTimer];
             return {
                 ...state,
-                timers: [...state.timers, newTimer],
+                timers: newTimers,
                 nextTimerId: state.nextTimerId + 1, //increment the id counter
+                totalWorkoutTime: calculateTimerTime(newTimers), //update total workout time
             };
-        case 'REMOVE_TIMER': //remove a timer by its id
+        }
+        case 'REMOVE_TIMER': { //remove a timer by its id
+            const updatedTimers = state.timers.filter(timer => timer.id !== action.payload);
             return {
                 ...state,
-                timers: state.timers.filter(timer => timer.id !== action.payload),
+                timers: updatedTimers,
+                totalWorkoutTime: calculateTimerTime(updatedTimers), //recalculate total workout time
             };
-        case 'TOGGLE_WORKOUT': //toggle between starting/resuming and pausing a workout
+        }
+        case 'TOGGLE_WORKOUT': { //toggle between starting/resuming and pausing a workout
             return {
                 ...state,
                 isWorkoutRunning: !state.isWorkoutRunning,
             };
-        case 'RESET_WORKOUT': //reset workout to initial state
+        }
+        case 'RESET_WORKOUT': { //reset workout to initial state
             return {
                 ...state,
                 currentTimerIndex: 0,
                 isWorkoutRunning: false,
                 isWorkoutComplete: false,
             };
-        case 'NEXT_TIMER': //move to the next timer in sequence and adjust workout time as needed, disable button if timer is last in sequence
-        if (state.currentTimerIndex < state.timers.length - 1) {
-            const currentTimerTime = calculateTimerTime(state.timers[state.currentTimerIndex]);
-            const newRemainingTime = state.remainingTime - currentTimerTime;
+        }
+        case 'NEXT_TIMER': { //move to the next timer in sequence
+            if (state.currentTimerIndex < state.timers.length - 1) {
+                return {
+                    ...state,
+                    currentTimerIndex: state.currentTimerIndex + 1,
+                };
+            }
             return {
-              ...state,
-              currentTimerIndex: state.currentTimerIndex + 1,
-              remainingTime: newRemainingTime > 0 ? newRemainingTime : 0,
+                ...state,
+                isWorkoutComplete: true, //mark workout as complete if timer last in queue
             };
-          }
-          return state;
-        case 'END_WORKOUT': //end the workout
+        }
+        case 'END_WORKOUT': { //end the workout
             return {
                 ...state,
                 isWorkoutRunning: false,
                 isWorkoutComplete: true,
             };
+        }
+        case 'UPDATE_TIMER': { //update an individual timer's remaining time
+            const updatedTimers = state.timers.map(timer =>
+                timer.id === action.payload.id ? { ...timer, remainingTime: action.payload.remainingTime } : timer
+            );
+            return {
+                ...state,
+                timers: updatedTimers,
+                totalWorkoutTime: calculateTimerTime(updatedTimers), //recalculate total workout time
+            };
+        }
         default:
             return state;
     }
