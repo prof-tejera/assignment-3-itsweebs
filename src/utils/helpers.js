@@ -30,5 +30,5 @@ export const calculateTimerTime = (timer) => {
 
 //calculate the total time for all timers in the list
 export const calculateRemainingTime = (timers) => {
-    return timers.reduce((totalTime, timer) => totalTime + calculateTimerTime(timer), 0);
+    return timers.reduce((totalTime, timer) => totalTime + timer.remainingTime, 0);
 };
