@@ -22,26 +22,35 @@ const WorkoutQueueView = () => {
     setRemainingTime(total);
   }, [state.timers]);
 
-
   //update remaining time when the current timer index changes
   useEffect(() => {
     const newRemainingTime = calculateRemainingTime(state.timers.slice(state.currentTimerIndex));
     setRemainingTime(newRemainingTime);
   }, [state.currentTimerIndex, state.timers]);
 
-  //update remaining time if workout is running
+  //handle individual timer countdown
   useEffect(() => {
     let interval;
-    if (state.isWorkoutRunning && remainingTime > 0) {
+    if (state.isWorkoutRunning) {
       interval = setInterval(() => {
-        setRemainingTime((prevTime) => prevTime - 1);
+        const activeTimer = state.timers[state.currentTimerIndex];
+        if (activeTimer && activeTimer.remainingTime > 0) {
+          dispatch({
+            type: 'UPDATE_TIMER',
+            payload: { id: activeTimer.id, remainingTime: activeTimer.remainingTime - 1 }
+          });
+        } else if (activeTimer && activeTimer.remainingTime === 0) {
+          //move to the next timer or end workout if it's the last timer
+          if (state.currentTimerIndex < state.timers.length - 1) {
+            dispatch({ type: 'NEXT_TIMER' });
+          } else {
+            dispatch({ type: 'END_WORKOUT' });
+          }
+        }
       }, 1000);
-    } else if (remainingTime === 0 && state.isWorkoutRunning) {
-      //stop the workout if time runs out
-      dispatch({ type: 'END_WORKOUT' });
     }
     return () => clearInterval(interval);
-  }, [state.isWorkoutRunning, remainingTime, dispatch]);
+  }, [state.isWorkoutRunning, state.currentTimerIndex, state.timers, dispatch]);
 
   //remove a timer from the workout queue
   const removeTimer = (id) => {
