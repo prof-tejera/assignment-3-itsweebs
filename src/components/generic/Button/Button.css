@@ -60,15 +60,14 @@
 }
 
 .button-add-timer {
-    background-color: black;
-    color: white;
-    width: 140px;
+    background-color: #deff04;
+    color: black;
     font-size: 16px;
 }
 
 .button-add-timer:hover {
-    background-color: #deff04;
-    color: black;
+    background-color: black;
+    color: white;
 }
 
 .button-add {
@@ -82,4 +81,15 @@
 .button-add:hover {
     background-color: #b8d513;
     color: black;
+}
+
+.button-save {
+    background-color: #f8446e;
+    color: black;
+    font-size: 16px;
+}
+
+.button-save:hover {
+    background-color: black;
+    color: white;
 }

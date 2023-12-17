@@ -15,6 +15,38 @@ const WorkoutQueueView = () => {
   const [initialTotalTime, setInitialTotalTime] = useState(0);
   const [remainingTime, setRemainingTime] = useState(0);
 
+  //serialize timers for URL
+  const serializeTimers = (timers) => {
+    return encodeURIComponent(JSON.stringify(timers));
+  };
+  //save timer configuration to URL
+  const saveConfiguration = () => {
+    const serializedTimers = serializeTimers(state.timers);
+    window.history.pushState(null, null, `?config=${serializedTimers}`);
+  };
+  //load state from URL and local storage
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const config = queryParams.get('config');
+    if (config) {
+      try {
+        const timers = JSON.parse(decodeURIComponent(config));
+        dispatch({ type: 'SET_TIMERS', payload: timers });
+      } catch (error) {
+        console.error('Error parsing timers from URL', error);
+      }
+    }
+    const savedState = localStorage.getItem('workoutState');
+    if (savedState) {
+      try {
+        const restoredState = JSON.parse(savedState);
+        dispatch({ type: 'RESTORE_STATE', payload: restoredState });
+      } catch (error) {
+        console.error('Error parsing state from local storage', error);
+      }
+    }
+  }, [dispatch]);
+
   //calculate initial total workout time based on timers in the queue
   useEffect(() => {
     const total = calculateRemainingTime(state.timers);
@@ -142,6 +174,7 @@ const WorkoutQueueView = () => {
         ))
       }
       <Button className="button-add-timer" label="Add Timer" onClick={() => navigate('/add')} />
+      <Button className="button-save" label="Save Configuration" onClick={saveConfiguration} />
     </div >
   );
 };

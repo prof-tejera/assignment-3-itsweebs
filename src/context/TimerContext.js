@@ -9,7 +9,7 @@ const initialState = {
     isWorkoutRunning: false,
     isWorkoutComplete: false, //added to track if the workout is complete
     nextTimerId: 0,
-    totalWorkoutTime: 0, // track the total time for all timers
+    totalWorkoutTime: 0, //track the total time for all timers
 };
 
 const timerReducer = (state, action) => {
@@ -78,6 +78,26 @@ const timerReducer = (state, action) => {
                 ...state,
                 timers: updatedTimers,
                 totalWorkoutTime: calculateTimerTime(updatedTimers), //recalculate total workout time
+            };
+        }
+        case 'SET_TIMERS': { //set the timers from loaded configuration
+            const newTimers = action.payload.map(timer => ({
+                ...timer,
+                remainingTime: calculateTimerTime(timer), //calculate remaining time for each timer
+                isActive: false //ensure timers are not active
+            }));
+            return {
+                ...state,
+                timers: newTimers,
+                totalWorkoutTime: calculateTimerTime(newTimers), //recalculate total workout time
+            };
+        }
+        case 'RESTORE_STATE': { //restore the state from local storage
+            return {
+                ...state,
+                currentTimerIndex: action.payload.currentTimerIndex,
+                isWorkoutRunning: action.payload.isWorkoutRunning,
+                isWorkoutComplete: action.payload.isWorkoutComplete || state.isWorkoutComplete,
             };
         }
         default:
