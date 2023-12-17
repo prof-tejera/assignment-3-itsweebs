@@ -8,9 +8,12 @@ const useTimeInput = (initialMinutes = '00', initialSeconds = '00') => {
         (parseInt(inputMinutes, 10) || 0) * 60 + (parseInt(inputSeconds, 10) || 0)
     );
     const [calculatedTime, setCalculatedTime] = useState(calculateTime);
-    const formatTimeInput = (value) => (
-        value.replace(/[^0-9]/g, '').padStart(2, '0').slice(0, 2)
-    );
+    const formatTimeInput = (value) => {
+        if (value === '') {
+            return '00';
+            }
+            return value.replace(/[^0-9]/g, '').slice(0, 2);
+    };
 
     const handleMinutesChange = (e) => {
         const newMinutes = formatTimeInput(e.target.value);
