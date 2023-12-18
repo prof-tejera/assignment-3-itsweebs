@@ -6,7 +6,7 @@ import { formatTime, calculateRemainingTime } from '../../utils/helpers';
 import DisplayTime from '../../components/generic/DisplayTime/DisplayTime';
 import DisplayText from '../../components/generic/DisplayText/DisplayText';
 import Button from '../../components/generic/Button/Button';
-import { faPlay, faPause, faRedo, faStepForward, faStop, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faPause, faRedo, faStepForward, faStop, faTrashAlt, faEdit } from '@fortawesome/free-solid-svg-icons';
 import './WorkoutQueueView.css'
 
 const WorkoutQueueView = () => {
@@ -14,6 +14,8 @@ const WorkoutQueueView = () => {
   const { state, dispatch } = useContext(TimerContext);
   const [initialTotalTime, setInitialTotalTime] = useState(0);
   const [remainingTime, setRemainingTime] = useState(0);
+  const [editingTimerId, setEditingTimerId] = useState(null);
+  const [editTimerDetails, setEditTimerDetails] = useState({ minutes: 0, seconds: 0, type: '', rounds: 1 });
 
   //serialize timers for URL
   const serializeTimers = (timers) => {
@@ -46,6 +48,27 @@ const WorkoutQueueView = () => {
       }
     }
   }, [dispatch]);
+
+  //start editing a timer
+  const startEditing = (id) => {
+    const timerToEdit = state.timers.find(timer => timer.id === id);
+    setEditTimerDetails({ ...timerToEdit });
+    setEditingTimerId(id);
+  };
+
+  //save edited timer
+  const saveEditedTimer = () => {
+    const updatedTimers = state.timers.map(timer =>
+      timer.id === editingTimerId ? { ...timer, ...editTimerDetails } : timer
+    );
+    dispatch({ type: 'SET_TIMERS', payload: updatedTimers });
+    saveConfiguration(); //update URL
+    setEditingTimerId(null);
+  };
+
+  const cancelEditing = () => {
+    setEditingTimerId(null);
+  };
 
   //calculate initial total workout time based on timers in the queue
   useEffect(() => {
@@ -152,30 +175,42 @@ const WorkoutQueueView = () => {
       </div>
       <h2>Workout Queue</h2>
       {
-        state.timers.map((timer, index) => (
-          <div key={timer.id} className={`timer-item ${index === state.currentTimerIndex ? 'active-timer' : ''}`}>
-            <div className="timer-info">
-              <div className="timer-type">{timer.type}</div>
-              <div className="timer-details">
-                {timer.type !== 'Tabata' && (
-                  <span>{timer.minutes}:{(timer.seconds ?? '0').toString().padStart(2, '0')}</span>
-                )}
-                {timer.type === 'Tabata' && (
-                  <>
-                    <span>Work: {timer.workMinutes}:{timer.workSeconds.padStart(2, '0')}</span>
-                    <span>Rest: {timer.restMinutes}:{timer.restSeconds.padStart(2, '0')}</span>
-                  </>
-                )}
-                {timer.rounds && <span>Rounds: {timer.rounds}</span>}
-              </div>
-            </div>
-            <Button className="button-remove" icon={faTrashAlt} onClick={() => removeTimer(timer.id)} />
-          </div>
-        ))
-      }
+  state.timers.map((timer, index) => (
+    <div key={timer.id} className={`timer-item ${index === state.currentTimerIndex ? 'active-timer' : ''}`}>
+      <div className="timer-info">
+        <div className="timer-type">{timer.type}</div>
+        <div className="timer-details">
+          {timer.type !== 'Tabata' && (
+            <span>{timer.minutes}:{(timer.seconds ?? '0').toString().padStart(2, '0')}</span>
+          )}
+          {timer.type === 'Tabata' && (
+            <>
+              <span>Work: {timer.workMinutes}:{timer.workSeconds.padStart(2, '0')}</span>
+              <span>Rest: {timer.restMinutes}:{timer.restSeconds.padStart(2, '0')}</span>
+            </>
+          )}
+          {timer.rounds && <span>Rounds: {timer.rounds}</span>}
+        </div>
+      </div>
+      {editingTimerId === timer.id ? (
+        <div className="edit-form">
+          <input type="number" value={editTimerDetails.minutes} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, minutes: e.target.value })} />m
+          <input type="number" value={editTimerDetails.seconds} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, seconds: e.target.value })} />s
+          <button onClick={() => saveEditedTimer(timer.id)}>Save</button>
+          <button onClick={cancelEditing}>Cancel</button>
+        </div>
+      ) : (
+        <div className="timer-controls">
+          <Button className="button-remove" icon={faEdit} onClick={() => startEditing(timer.id)} />
+          <Button className="button-remove" icon={faTrashAlt} onClick={() => removeTimer(timer.id)} />
+        </div>
+      )}
+    </div>
+  ))
+}
       <Button className="button-add-timer" label="Add Timer" onClick={() => navigate('/add')} />
       <Button className="button-save" label="Save Configuration" onClick={saveConfiguration} />
-    </div >
+    </div>
   );
 };
 
