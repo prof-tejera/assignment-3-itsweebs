@@ -19,14 +19,15 @@ const timerReducer = (state, action) => {
                 ...action.payload,
                 id: state.nextTimerId, //assign a unique id to the new timer added
                 remainingTime: calculateTimerTime(action.payload), //initialize remaining time for the timer
-                isActive: false //flag to indicate if timer is currently active
+                isActive: false, //flag to indicate if timer is currently active
+                description: action.payload.description || '' //ensure description is included
             };
             const newTimers = [...state.timers, newTimer];
             return {
                 ...state,
                 timers: newTimers,
                 nextTimerId: state.nextTimerId + 1, //increment the id counter
-                totalWorkoutTime: calculateTimerTime(newTimers), //update total workout time
+                totalWorkoutTime: newTimers.reduce((total, timer) => total + calculateTimerTime(timer), 0) //update total workout time
             };
         }
         case 'REMOVE_TIMER': { //remove a timer by its id
@@ -44,13 +45,19 @@ const timerReducer = (state, action) => {
             };
         }
         case 'RESET_WORKOUT': { //reset workout to initial state
+            //reset the individual timers' remaining times
+            const resetTimers = state.timers.map(timer => ({
+                ...timer,
+                remainingTime: calculateTimerTime(timer),
+            }));
             return {
                 ...state,
                 currentTimerIndex: 0,
                 isWorkoutRunning: false,
                 isWorkoutComplete: false,
+                timers: resetTimers,
             };
-        }
+        }        
         case 'NEXT_TIMER': { //move to the next timer in sequence
             if (state.currentTimerIndex < state.timers.length - 1) {
                 return {
@@ -84,12 +91,13 @@ const timerReducer = (state, action) => {
             const newTimers = action.payload.map(timer => ({
                 ...timer,
                 remainingTime: calculateTimerTime(timer), //calculate remaining time for each timer
+                description: timer.description || '', //ensure description is included
                 isActive: false //ensure timers are not active
             }));
             return {
                 ...state,
                 timers: newTimers,
-                totalWorkoutTime: calculateTimerTime(newTimers), //recalculate total workout time
+                totalWorkoutTime: newTimers.reduce((total, timer) => total + calculateTimerTime(timer), 0) //recalculate total workout time
             };
         }
         case 'RESTORE_STATE': { //restore the state from local storage
@@ -98,6 +106,18 @@ const timerReducer = (state, action) => {
                 currentTimerIndex: action.payload.currentTimerIndex,
                 isWorkoutRunning: action.payload.isWorkoutRunning,
                 isWorkoutComplete: action.payload.isWorkoutComplete || state.isWorkoutComplete,
+            };
+        }
+        case 'REORDER_TIMER': { //change the order of a timer
+            const { startIndex, endIndex } = action.payload;
+            const reorderedTimers = [...state.timers];
+            const [removedTimer] = reorderedTimers.splice(startIndex, 1);
+            reorderedTimers.splice(endIndex, 0, removedTimer);
+
+            return {
+                ...state,
+                timers: reorderedTimers,
+                currentTimerIndex: endIndex, //update the timer index accordingly
             };
         }
         default:

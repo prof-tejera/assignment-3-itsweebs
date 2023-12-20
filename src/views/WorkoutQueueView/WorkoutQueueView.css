@@ -84,3 +84,13 @@
 .active-timer {
     background-color: #c0c0c0;
   }
+
+
+.timer-item:hover {
+    cursor: grab;
+}
+
+.timer-item.dragging, .timer-item.dragging:hover {
+    cursor: grabbing !important;
+}
+

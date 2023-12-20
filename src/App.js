@@ -5,6 +5,8 @@ import { TimerProvider } from './context/TimerContext';
 import DocumentationView from "./views/DocumentationView/DocumentationView";
 import TimersView from "./views/TimersView/TimersView";
 import AddTimerView from "./views/AddTimersView/AddTimersView";
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import WorkoutQueueView from "./views/WorkoutQueueView/WorkoutQueueView";
 import './App.css'; 
 
@@ -37,6 +39,7 @@ const Nav = () => {
 const App = () => {
   return (
     <TimerProvider>
+    <DndProvider backend={HTML5Backend}>
     <Container>
       <Router>
         <Nav />
@@ -48,6 +51,7 @@ const App = () => {
         </Routes>
       </Router>
     </Container>
+    </DndProvider>
     </TimerProvider>
   );
 };

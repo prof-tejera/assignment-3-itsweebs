@@ -23,6 +23,8 @@ const AddTimerView = () => {
   //add text to confirm when a timer is added and handle it clearing
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationTimeout, setConfirmationTimeout] = useState(null);
+  //state for adding description
+  const [description, setDescription] = useState('');
 
   //available timers
   const Timers = ["Stopwatch", "Countdown", "XY", "Tabata"];
@@ -45,13 +47,10 @@ const AddTimerView = () => {
       workSeconds: activeType === "Tabata" ? inputSeconds : undefined,
       restMinutes: activeType === "Tabata" ? restMinutes : undefined,
       restSeconds: activeType === "Tabata" ? restSeconds : undefined,
-      rounds: activeType === "Tabata" || activeType === "XY" ? rounds : undefined,
+      rounds: activeType === "Tabata" || activeType === "XY" ? rounds : undefined, description,
     };
 
-    dispatch({
-      type: 'ADD_TIMER',
-      payload: timerConfig,
-    });
+    dispatch({ type: 'ADD_TIMER', payload: timerConfig });
 
     //show confirmation message
     setShowConfirmation(true);
@@ -109,6 +108,15 @@ const AddTimerView = () => {
                 </div>
               </>
             )}
+            Description:
+            <div>
+              <Input 
+                type="text"  
+                value={description} 
+                onChange={(e) => setDescription(e.target.value)} 
+                className="input-description"
+              />
+            </div>
           </Panel>
         </div>
       </div>
