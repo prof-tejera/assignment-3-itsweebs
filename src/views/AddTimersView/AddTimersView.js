@@ -87,7 +87,6 @@ const AddTimerView = () => {
 
 
     // Set back to default values
-    setActiveType("Stopwatch");
     setDescription('');
     setInitialTime();
     setTabataInitialTime();
