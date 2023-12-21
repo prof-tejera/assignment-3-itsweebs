@@ -36,3 +36,17 @@ input {
     font-size: 14px;
     letter-spacing: 0.2;
 }
+
+.edit-form input {
+    font-size: 14px;
+    padding: 4px 0px 4px 8px;
+
+}
+
+.labels {
+    font-size: 12px;
+}
+
+.description-edit {
+    width: 240px;
+}

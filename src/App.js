@@ -8,6 +8,8 @@ import AddTimerView from "./views/AddTimersView/AddTimersView";
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import WorkoutQueueView from "./views/WorkoutQueueView/WorkoutQueueView";
+import { ErrorBoundary } from 'react-error-boundary';
+import Button from "./components/generic/Button/Button";
 import './App.css'; 
 
 const Container = styled.div`
@@ -36,8 +38,18 @@ const Nav = () => {
   );
 };
 
+//ErrorFallback component to display when an error occurs
+const ErrorFallback = ({ error, resetErrorBoundary }) => (
+  <div role="alert">
+    <p>Something went wrong</p>
+    <pre>{error.message}</pre>
+    <Button label ="Please try again" onClick={resetErrorBoundary} />
+  </div>
+);
+
 const App = () => {
   return (
+    <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => { }}>
     <TimerProvider>
     <DndProvider backend={HTML5Backend}>
     <Container>
@@ -53,6 +65,7 @@ const App = () => {
     </Container>
     </DndProvider>
     </TimerProvider>
+    </ErrorBoundary>
   );
 };
 

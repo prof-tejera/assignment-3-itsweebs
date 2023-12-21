@@ -4,7 +4,7 @@
     border-radius: 80px;
     font-size: 18px;
     cursor: pointer;
-    background-color: #fff;
+    background-color: #e5e5e5;
     color: #000;
     text-transform: uppercase;
     margin: 0px 0px 12px 12px;
@@ -12,7 +12,8 @@
 }
 
 .button:hover {
-    background-color: #e5e5e5;
+    background-color: #d0d0d0;
+    color: #000;
 }
 
 .button-start {
@@ -92,4 +93,30 @@
 .button-save:hover {
     background-color: black;
     color: white;
+}
+
+.edit-save {
+    background-color: #deff04;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.edit-save:hover {
+    background-color: #b8d513;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.edit-cancel {
+    background-color: #e5e5e5;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.edit-cancel:hover {
+    background-color: #d0d0d0;
+    font-size: 12px;
+    margin-top: 4px;
 }

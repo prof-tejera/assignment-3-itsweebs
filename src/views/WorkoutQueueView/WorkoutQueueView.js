@@ -177,11 +177,12 @@ const WorkoutQueueView = () => {
         </div>
         {editingTimerId === timer.id ? (
           <div className="edit-form">
-            <input type="number" value={editTimerDetails.minutes} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, minutes: e.target.value })} />m
-            <input type="number" value={editTimerDetails.seconds} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, seconds: e.target.value })} />s
-            <input type="text" value={editTimerDetails.description} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, description: e.target.value })}/>
-            <button onClick={() => saveEditedTimer(timer.id)}>Save</button>
-            <button onClick={cancelEditing}>Cancel</button>
+            <div className="labels">edit time:</div>
+            <input type="number" value={editTimerDetails.minutes} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, minutes: e.target.value })} /><span className="labels">:</span>
+            <input type="number" value={editTimerDetails.seconds} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, seconds: e.target.value })} /><br />
+            <div className="labels">edit description:</div><input className="description-edit" type="text" value={editTimerDetails.description} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, description: e.target.value })}/><br />
+            <Button label="Save" className="edit-save" onClick={() => saveEditedTimer(timer.id)} />
+            <Button label="Cancel" className="edit-cancel" onClick={cancelEditing} />
           </div>
         ) : (
           <div className="timer-controls">
