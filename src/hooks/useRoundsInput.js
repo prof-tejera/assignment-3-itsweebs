@@ -8,7 +8,11 @@ const useRoundsInput = (defaultRounds = '10') => {
         setRounds(value);
     };
 
-    return { rounds, handleRoundsChange };
+    const setInitialRounds = () => {
+        setRounds(defaultRounds);
+    }
+
+    return { rounds, handleRoundsChange, setInitialRounds };
 };
 
 export default useRoundsInput;

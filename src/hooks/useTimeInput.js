@@ -27,7 +27,13 @@ const useTimeInput = (initialMinutes = '00', initialSeconds = '00') => {
         setCalculatedTime((parseInt(inputMinutes, 10) || 0) * 60 + (parseInt(newSeconds, 10) || 0));
     };
 
-    return { inputMinutes, inputSeconds, calculatedTime, handleMinutesChange, handleSecondsChange };
+    const setInitialTime = () => {
+        setInputMinutes(initialMinutes);
+        setInputSeconds(initialSeconds);
+        setCalculatedTime((parseInt(inputMinutes, 10) || 0) * 60 + (parseInt(initialSeconds, 10) || 0));
+    }
+
+    return { inputMinutes, inputSeconds, calculatedTime, handleMinutesChange, handleSecondsChange, setInitialTime };
 };
 
 export default useTimeInput;

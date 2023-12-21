@@ -53,7 +53,7 @@ const ErrorFallback = ({ error, resetErrorBoundary }) => (
 
 const App = () => {
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => { }}>
+    <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => { window.location.reload() }}>
       <TimerProvider>
         <DndProvider backend={HTML5Backend}>
           <Container>

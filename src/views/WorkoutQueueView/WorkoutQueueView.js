@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TimerContext from '../../context/TimerContext';
 import Panel from '../../components/generic/Panel/Panel';
@@ -10,6 +10,7 @@ import { faPlay, faPause, faRedo, faStepForward, faStop, faTrashAlt, faEdit } fr
 import './WorkoutQueueView.css';
 import { useDrag, useDrop } from 'react-dnd';
 
+
 const WorkoutQueueView = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useContext(TimerContext);
@@ -17,40 +18,48 @@ const WorkoutQueueView = () => {
   const [editingTimerId, setEditingTimerId] = useState(null);
   const [editTimerDetails, setEditTimerDetails] = useState({ minutes: 0, seconds: 0, type: '', rounds: 1 });
 
+  const descriptionInputRef = useRef(null);
+  const minutesInputRef = useRef(null);
+  const secondsInputRef = useRef(null);
+
+  //update URL when timers details or configuration changes
+  useEffect(() => {
+    const timerConfig = state.timers.map(timer => ({
+      type: timer.type,
+      minutes: timer.minutes,
+      seconds: timer.seconds,
+      workMinutes: timer.workMinutes,
+      workSeconds: timer.workSeconds,
+      rounds: timer.rounds,
+      description: timer.description,
+    }));
+    const searchParams = new URLSearchParams();
+    searchParams.set('timers', JSON.stringify(timerConfig));
+    navigate(`?${searchParams.toString()}`);
+  }, [state.timers, navigate]);
+
+  //handle focus views in edit mode
+  useEffect(() => {
+    if (descriptionInputRef.current) {
+      descriptionInputRef.current.focus();
+    }
+  }, [editTimerDetails.description]);
+  useEffect(() => {
+    if (minutesInputRef.current) {
+      minutesInputRef.current.focus();
+    }
+  }, [editTimerDetails.minutes]);
+  useEffect(() => {
+    if (secondsInputRef.current) {
+      secondsInputRef.current.focus();
+    }
+  }, [editTimerDetails.seconds]);
+
   //update remaining time when the current timer index changes
   useEffect(() => {
     const newRemainingTime = calculateRemainingTime(state.timers.slice(state.currentTimerIndex));
     setRemainingTime(newRemainingTime);
   }, [state.currentTimerIndex, state.timers]);
-
-  //save timer configuration to URL
-  const saveConfiguration = () => {
-    const serializedTimers = encodeURIComponent(JSON.stringify(state.timers));
-    window.history.pushState(null, null, `?config=${serializedTimers}`);
-  };
-
-  //load state from URL and local storage
-  useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    const config = queryParams.get('config');
-    if (config) {
-      try {
-        const timers = JSON.parse(decodeURIComponent(config));
-        dispatch({ type: 'SET_TIMERS', payload: timers });
-      } catch (error) {
-        console.error('Error parsing timers from URL', error);
-      }
-    }
-    const savedState = localStorage.getItem('workoutState');
-    if (savedState) {
-      try {
-        const restoredState = JSON.parse(savedState);
-        dispatch({ type: 'RESTORE_STATE', payload: restoredState });
-      } catch (error) {
-        console.error('Error parsing state from local storage', error);
-      }
-    }
-  }, [dispatch]);
 
   //start editing a timer
   const startEditing = (id) => {
@@ -59,13 +68,12 @@ const WorkoutQueueView = () => {
     setEditingTimerId(id);
   };
 
-  //save edited timer and update URL
+  //save edited timer
   const saveEditedTimer = () => {
     const updatedTimers = state.timers.map(timer =>
       timer.id === editingTimerId ? { ...timer, ...editTimerDetails } : timer
     );
     dispatch({ type: 'SET_TIMERS', payload: updatedTimers });
-    saveConfiguration();
     setEditingTimerId(null);
   };
 
@@ -126,7 +134,7 @@ const WorkoutQueueView = () => {
   const handleEndWorkout = () => {
     dispatch({ type: 'END_WORKOUT' });
     setRemainingTime(0);
-  
+
     //save the workout to the history
     const workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || [];
     const newWorkoutRecord = {
@@ -155,7 +163,7 @@ const WorkoutQueueView = () => {
     };
     localStorage.setItem('workoutHistory', JSON.stringify([...workoutHistory, newWorkoutRecord]));
   };
-  
+
 
   //determine if the current timer is last in queue
   const isLastTimer = state.currentTimerIndex >= state.timers.length - 1;
@@ -207,9 +215,29 @@ const WorkoutQueueView = () => {
         {editingTimerId === timer.id ? (
           <div className="edit-form">
             <div className="labels">edit time:</div>
-            <input type="number" value={editTimerDetails.minutes} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, minutes: e.target.value })} /><span className="labels">:</span>
-            <input type="number" value={editTimerDetails.seconds} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, seconds: e.target.value })} /><br />
-            <div className="labels">edit description:</div><input className="description-edit" type="text" value={editTimerDetails.description} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, description: e.target.value })} /><br />
+            <input type="number"
+              value={editTimerDetails.minutes}
+              onChange={(e) => { //validate and limit to 2 digits
+                const newMinutes = e.target.value.slice(0, 2);
+                setEditTimerDetails({ ...editTimerDetails, minutes: newMinutes })
+              }}
+              ref={minutesInputRef} />
+            <span className="labels">:</span>
+            <input type="number"
+              value={editTimerDetails.seconds}
+              onChange={(e) => { //validate and limit to 2 digits
+                const newSeconds = e.target.value.slice(0, 2);
+                setEditTimerDetails({ ...editTimerDetails, seconds: newSeconds })
+              }}
+              ref={secondsInputRef} />
+            <br />
+            <div className="labels">edit description:</div>
+            <input className="description-edit"
+              type="text"
+              value={editTimerDetails.description}
+              onChange={(e) => setEditTimerDetails({ ...editTimerDetails, description: e.target.value })}
+              ref={descriptionInputRef} />
+            <br />
             <Button label="Save" className="edit-save" onClick={() => saveEditedTimer(timer.id)} />
             <Button label="Cancel" className="edit-cancel" onClick={cancelEditing} />
           </div>
@@ -282,7 +310,6 @@ const WorkoutQueueView = () => {
         ))
       }
       <Button className="button-add-timer" label="Add Timer" onClick={() => navigate('/add')} />
-      <Button className="button-save" label="Save Configuration" onClick={saveConfiguration} />
     </div>
   );
 };

@@ -7,6 +7,7 @@ import Input from '../../components/generic/Input/Input';
 import Button from '../../components/generic/Button/Button.js';
 import useTimeInput from '../../hooks/useTimeInput';
 import useRoundsInput from '../../hooks/useRoundsInput';
+import { useNavigate } from "react-router-dom";
 import "./AddTimersView.css"
 
 const AddTimerView = () => {
@@ -15,11 +16,11 @@ const AddTimerView = () => {
   //state to track the selected timer type, defaulted to stopwatch
   const [activeType, setActiveType] = useState("Stopwatch");
   //utilizing custom hooks for handling input fields
-  const { inputMinutes, inputSeconds, handleMinutesChange, handleSecondsChange } = useTimeInput('01', '30');
+  const { inputMinutes, inputSeconds, handleMinutesChange, handleSecondsChange, setInitialTime } = useTimeInput('01', '30');
   //separate instance for handling rest time in Tabata timer
-  const { inputMinutes: restMinutes, inputSeconds: restSeconds, handleMinutesChange: handleRestMinutesChange, handleSecondsChange: handleRestSecondsChange } = useTimeInput('00', '20');
+  const { inputMinutes: restMinutes, inputSeconds: restSeconds, handleMinutesChange: handleRestMinutesChange, handleSecondsChange: handleRestSecondsChange, setInitialTime: setTabataInitialTime } = useTimeInput('00', '20');
   //utilizing custom hook for handling rounds input for Tabata and XY
-  const { rounds, handleRoundsChange } = useRoundsInput('8');
+  const { rounds, handleRoundsChange, setInitialRounds } = useRoundsInput('8');
   //add text to confirm when a timer is added and handle it clearing
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationTimeout, setConfirmationTimeout] = useState(null);
@@ -28,6 +29,25 @@ const AddTimerView = () => {
 
   //available timers
   const Timers = ["Stopwatch", "Countdown", "XY", "Tabata"];
+
+  const navigate = useNavigate();
+  // const location = useLocation();
+
+   // saves the timer configuration
+   const saveTimerConfiguration = () => {
+    const timerConfig = {
+      activeType,
+      inputMinutes,
+      restMinutes,
+      restSeconds,
+      inputSeconds,
+      rounds,
+    };
+    // Use URLSearchParams to encode the configuration into the URL
+    const searchParams = new URLSearchParams(timerConfig);
+    console.log("searchParams ", searchParams);
+    navigate(`/add?${searchParams.toString()}`);
+  };
 
   //handle timer type selection changes
   const handleTypeChange = (type) => {
@@ -52,6 +72,9 @@ const AddTimerView = () => {
 
     dispatch({ type: 'ADD_TIMER', payload: timerConfig });
 
+    // Save timer configuration to URL 
+    saveTimerConfiguration();
+
     //show confirmation message
     setShowConfirmation(true);
     //clear any existing timeouts
@@ -61,6 +84,14 @@ const AddTimerView = () => {
     //reset confirmation message after 3 seconds
     const timeout = setTimeout(() => setShowConfirmation(false), 3000);
     setConfirmationTimeout(timeout);
+
+
+    // Set back to default values
+    setActiveType("Stopwatch");
+    setDescription('');
+    setInitialTime();
+    setTabataInitialTime();
+    setInitialRounds();
   };
 
   //flag to conditionally render Tabata-specific input fields
@@ -110,10 +141,10 @@ const AddTimerView = () => {
             )}
             Description:
             <div>
-              <Input 
-                type="text"  
-                value={description} 
-                onChange={(e) => setDescription(e.target.value)} 
+              <Input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 className="input-description"
               />
             </div>

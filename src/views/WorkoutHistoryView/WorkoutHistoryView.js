@@ -6,12 +6,20 @@ const WorkoutHistoryView = () => {
   const workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || [];
 
   const formatTimerDetails = (timer) => {
+    let details = '';
+
     if (timer.type === 'Tabata') {
-      return `Work: ${timer.workMinutes}:${timer.workSeconds.padStart(2, '0')}, Rest: ${timer.restMinutes}:${timer.restSeconds.padStart(2, '0')}, Rounds: ${timer.rounds}`;
+      details = `Work: ${timer.workMinutes}:${timer.workSeconds.padStart(2, '0')}, Rest: ${timer.restMinutes}:${timer.restSeconds.padStart(2, '0')}, Rounds: ${timer.rounds}`;
     } else {
-      return `${timer.minutes}:${timer.seconds.toString().padStart(2, '0')} for ${timer.rounds} rounds`;
+      details += `${timer.minutes}:${timer.seconds.toString().padStart(2, '0')}`;
+      if (timer.rounds !== undefined) {
+        details += ` for ${timer.rounds} round${timer.rounds !== 1 ? 's' : ''}`;
+      }
     }
+    
+    return details;
   };
+
 
   return (
     <Panel>
