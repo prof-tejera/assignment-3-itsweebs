@@ -131,10 +131,29 @@ const WorkoutQueueView = () => {
     const workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || [];
     const newWorkoutRecord = {
       date: new Date().toISOString(),
-      timers: state.timers,
+      timers: state.timers.map(timer => {
+        if (timer.type === 'Tabata') {
+          return {
+            type: timer.type,
+            workMinutes: timer.workMinutes,
+            workSeconds: timer.workSeconds,
+            restMinutes: timer.restMinutes,
+            restSeconds: timer.restSeconds,
+            rounds: timer.rounds,
+            description: timer.description
+          };
+        } else {
+          return {
+            type: timer.type,
+            minutes: timer.minutes,
+            seconds: timer.seconds,
+            rounds: timer.rounds,
+            description: timer.description
+          };
+        }
+      }),
     };
-    workoutHistory.push(newWorkoutRecord);
-    localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
+    localStorage.setItem('workoutHistory', JSON.stringify([...workoutHistory, newWorkoutRecord]));
   };
   
 
