@@ -1,4 +1,4 @@
-import { createContext, useReducer } from 'react';
+import { createContext, useReducer, useEffect } from 'react';
 import { calculateTimerTime } from '../utils/helpers';
 
 const TimerContext = createContext();
@@ -39,10 +39,12 @@ const timerReducer = (state, action) => {
             };
         }
         case 'TOGGLE_WORKOUT': { //toggle between starting/resuming and pausing a workout
-            return {
+            const updatedState = {
                 ...state,
                 isWorkoutRunning: !state.isWorkoutRunning,
             };
+            saveStateToLocalStorage(updatedState);
+            return updatedState;
         }
         case 'RESET_WORKOUT': { //reset workout to initial state
             //reset the individual timers' remaining times
@@ -50,14 +52,16 @@ const timerReducer = (state, action) => {
                 ...timer,
                 remainingTime: calculateTimerTime(timer),
             }));
-            return {
+            const updatedState = {
                 ...state,
                 currentTimerIndex: 0,
                 isWorkoutRunning: false,
                 isWorkoutComplete: false,
                 timers: resetTimers,
             };
-        }        
+            saveStateToLocalStorage(updatedState);
+            return updatedState;
+        }
         case 'NEXT_TIMER': { //move to the next timer in sequence
             if (state.currentTimerIndex < state.timers.length - 1) {
                 return {
@@ -65,27 +69,39 @@ const timerReducer = (state, action) => {
                     currentTimerIndex: state.currentTimerIndex + 1,
                 };
             }
-            return {
+            const updatedState = {
                 ...state,
                 isWorkoutComplete: true, //mark workout as complete if timer last in queue
             };
+            saveStateToLocalStorage(updatedState);
+            return updatedState;
         }
         case 'END_WORKOUT': { //end the workout
-            return {
+            //reset the individual timers' remaining times
+            const upatedTimers = state.timers.map(timer => ({
+                ...timer,
+                remainingTime: 0,
+            }));
+            const updatedState = {
                 ...state,
                 isWorkoutRunning: false,
                 isWorkoutComplete: true,
+                timers: upatedTimers
             };
+            saveStateToLocalStorage(updatedState);
+            return updatedState;
         }
         case 'UPDATE_TIMER': { //update an individual timer's remaining time
             const updatedTimers = state.timers.map(timer =>
                 timer.id === action.payload.id ? { ...timer, remainingTime: action.payload.remainingTime } : timer
             );
-            return {
+            const updatedState = {
                 ...state,
                 timers: updatedTimers,
                 totalWorkoutTime: calculateTimerTime(updatedTimers), //recalculate total workout time
             };
+            saveStateToLocalStorage(updatedState);
+            return updatedState;
         }
         case 'SET_TIMERS': { //set the timers from loaded configuration
             const newTimers = action.payload.map(timer => ({
@@ -94,39 +110,47 @@ const timerReducer = (state, action) => {
                 description: timer.description || '', //ensure description is included
                 isActive: false //ensure timers are not active
             }));
-            return {
+            const updatedState = {
                 ...state,
                 timers: newTimers,
                 totalWorkoutTime: newTimers.reduce((total, timer) => total + calculateTimerTime(timer), 0) //recalculate total workout time
-            };
-        }
-        case 'RESTORE_STATE': { //restore the state from local storage
-            return {
-                ...state,
-                currentTimerIndex: action.payload.currentTimerIndex,
-                isWorkoutRunning: action.payload.isWorkoutRunning,
-                isWorkoutComplete: action.payload.isWorkoutComplete || state.isWorkoutComplete,
-            };
+            }
+            saveStateToLocalStorage(updatedState);
+            return updatedState;
         }
         case 'REORDER_TIMER': { //change the order of a timer
             const { startIndex, endIndex } = action.payload;
             const reorderedTimers = [...state.timers];
             const [removedTimer] = reorderedTimers.splice(startIndex, 1);
             reorderedTimers.splice(endIndex, 0, removedTimer);
-
-            return {
+            const updatedState = {
                 ...state,
                 timers: reorderedTimers,
                 currentTimerIndex: endIndex, //update the timer index accordingly
             };
+            saveStateToLocalStorage(updatedState);
+            return updatedState;
         }
         default:
             return state;
     }
 };
 
+const saveStateToLocalStorage = (state) => {
+    localStorage.setItem('timerAppState', JSON.stringify(state));
+};
+
+const loadStateFromLocalStorage = () => {
+    const savedState = localStorage.getItem('timerAppState');
+    return savedState ? JSON.parse(savedState) : initialState;
+};
+
 export const TimerProvider = ({ children }) => {
-    const [state, dispatch] = useReducer(timerReducer, initialState);
+    const [state, dispatch] = useReducer(timerReducer, initialState, loadStateFromLocalStorage);
+
+    useEffect(() => {
+        saveStateToLocalStorage(state);
+    }, [state]);
 
     return (
         <TimerContext.Provider value={{ state, dispatch }}>
