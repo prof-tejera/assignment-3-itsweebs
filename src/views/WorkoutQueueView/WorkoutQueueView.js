@@ -126,7 +126,17 @@ const WorkoutQueueView = () => {
   const handleEndWorkout = () => {
     dispatch({ type: 'END_WORKOUT' });
     setRemainingTime(0);
+  
+    //save the workout to the history
+    const workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || [];
+    const newWorkoutRecord = {
+      date: new Date().toISOString(),
+      timers: state.timers,
+    };
+    workoutHistory.push(newWorkoutRecord);
+    localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
   };
+  
 
   //determine if the current timer is last in queue
   const isLastTimer = state.currentTimerIndex >= state.timers.length - 1;
@@ -180,7 +190,7 @@ const WorkoutQueueView = () => {
             <div className="labels">edit time:</div>
             <input type="number" value={editTimerDetails.minutes} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, minutes: e.target.value })} /><span className="labels">:</span>
             <input type="number" value={editTimerDetails.seconds} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, seconds: e.target.value })} /><br />
-            <div className="labels">edit description:</div><input className="description-edit" type="text" value={editTimerDetails.description} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, description: e.target.value })}/><br />
+            <div className="labels">edit description:</div><input className="description-edit" type="text" value={editTimerDetails.description} onChange={(e) => setEditTimerDetails({ ...editTimerDetails, description: e.target.value })} /><br />
             <Button label="Save" className="edit-save" onClick={() => saveEditedTimer(timer.id)} />
             <Button label="Cancel" className="edit-cancel" onClick={cancelEditing} />
           </div>
@@ -195,66 +205,66 @@ const WorkoutQueueView = () => {
   };
 
   return (
-      <div className="container">
-        <div className="workout">
-          <DisplayText className="workout-title" text="Workout" />
-          <DisplayTime className={state.isWorkoutComplete ? 'time-finished' : ''}>
-            {formatTime(remainingTime)}
-          </DisplayTime>
-          <DisplayText className="additional-text" text={!state.isWorkoutRunning && remainingTime === 0 && state.timers.length > 0 ? 'Done!' : ''} />
-          <Panel className="control-panel">
-            <div className="start-button-container">
-              <Button
-                className="button-start"
-                label={state.isWorkoutRunning ? "Pause" : "Start"}
-                icon={state.isWorkoutRunning ? faPause : faPlay}
-                onClick={handlePauseResume}
-                disabled={state.isWorkoutComplete}
-              />
-            </div>
-            <div className="buttons-container">
-              <Button
-                className="button-reset"
-                label="Reset"
-                icon={faRedo}
-                onClick={handleReset}
-              />
-              <Button
-                className="button-forward"
-                label="Forward"
-                icon={faStepForward}
-                onClick={handleFastForward}
-                disabled={isLastTimer || state.isWorkoutComplete}
-              />
-              <Button
-                className="button-end"
-                label="End"
-                icon={faStop}
-                onClick={handleEndWorkout}
-                disabled={state.isWorkoutComplete}
-              />
-            </div>
-          </Panel>
-        </div>
-        <h2>Workout Queue</h2>
-        {
-          state.timers.map((timer, index) => (
-            <DraggableTimer
-              timer={timer}
-              key={timer.id}
-              index={index}
-              id={timer.id}
-              editingTimerId={editingTimerId}
-              startEditing={startEditing}
-              removeTimer={removeTimer}
-              state={state}
-              dispatch={dispatch}
+    <div className="container">
+      <div className="workout">
+        <DisplayText className="workout-title" text="Workout" />
+        <DisplayTime className={state.isWorkoutComplete ? 'time-finished' : ''}>
+          {formatTime(remainingTime)}
+        </DisplayTime>
+        <DisplayText className="additional-text" text={!state.isWorkoutRunning && remainingTime === 0 && state.timers.length > 0 ? 'Done!' : ''} />
+        <Panel className="control-panel">
+          <div className="start-button-container">
+            <Button
+              className="button-start"
+              label={state.isWorkoutRunning ? "Pause" : "Start"}
+              icon={state.isWorkoutRunning ? faPause : faPlay}
+              onClick={handlePauseResume}
+              disabled={state.isWorkoutComplete}
             />
-          ))
-        }
-        <Button className="button-add-timer" label="Add Timer" onClick={() => navigate('/add')} />
-        <Button className="button-save" label="Save Configuration" onClick={saveConfiguration} />
+          </div>
+          <div className="buttons-container">
+            <Button
+              className="button-reset"
+              label="Reset"
+              icon={faRedo}
+              onClick={handleReset}
+            />
+            <Button
+              className="button-forward"
+              label="Forward"
+              icon={faStepForward}
+              onClick={handleFastForward}
+              disabled={isLastTimer || state.isWorkoutComplete}
+            />
+            <Button
+              className="button-end"
+              label="End"
+              icon={faStop}
+              onClick={handleEndWorkout}
+              disabled={state.isWorkoutComplete}
+            />
+          </div>
+        </Panel>
       </div>
+      <h2>Workout Queue</h2>
+      {
+        state.timers.map((timer, index) => (
+          <DraggableTimer
+            timer={timer}
+            key={timer.id}
+            index={index}
+            id={timer.id}
+            editingTimerId={editingTimerId}
+            startEditing={startEditing}
+            removeTimer={removeTimer}
+            state={state}
+            dispatch={dispatch}
+          />
+        ))
+      }
+      <Button className="button-add-timer" label="Add Timer" onClick={() => navigate('/add')} />
+      <Button className="button-save" label="Save Configuration" onClick={saveConfiguration} />
+    </div>
   );
 };
 
