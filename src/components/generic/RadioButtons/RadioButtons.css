@@ -1,0 +1,41 @@
+.radio-group label {
+  font-weight: 400;
+  display: block;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.radio {
+  display: inline-block;
+}
+
+.radio-label {
+  cursor: pointer;
+  padding: 8px 16px;
+  background-color: #eeeeee;
+  color: #000000;
+  border: 2px solid #eeeeee;
+  border-radius: 8px;
+  font-size: 0.8em;
+  letter-spacing: 0.1em;
+  margin: 4px;
+  font-weight: 400;
+  text-transform: uppercase;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Smooth transition for hover effect */
+}
+
+.radio-label:hover {
+  background-color: #e0e0e0;
+  color: #f8446e;
+  border-color: #e0e0e0;
+}
+
+.radio-input {
+  display: none; /* Hide the default radio button */
+}
+
+.radio-input:checked + .radio-label {
+  background-color: #f8446e;
+  color: #fff;
+  border-color: #f8446e;
+}

@@ -1,0 +1,122 @@
+.button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 80px;
+    font-size: 18px;
+    cursor: pointer;
+    background-color: #e5e5e5;
+    color: #000;
+    text-transform: uppercase;
+    margin: 0px 0px 12px 12px;
+    letter-spacing: 0.05em;
+}
+
+.button:hover {
+    background-color: #d0d0d0;
+    color: #000;
+}
+
+.button-start {
+    width: 220px;
+    font-size: 24px;
+    background-color: #f8446e;
+}
+
+.button-start:hover {
+    background-color: #d84567;
+}
+
+.button-reset {
+    background-color: #06ffd1;
+}
+
+.button-reset:hover {
+    background-color: #0acba4;
+}
+
+.button-end {
+    background-color: #deff04;
+}
+
+.button-end:hover {
+    background-color: #b8d513;
+}
+
+.button-forward {
+    background-color: #00d9ff;
+}
+
+.button-forward:hover {
+    background-color: #02bcdc;
+}
+
+.button-remove {
+    color: black;
+    background-color: transparent;
+}
+
+.button-remove:hover {
+    color: #f8446e;
+    background-color: transparent;
+}
+
+.button-add-timer {
+    background-color: #deff04;
+    color: black;
+    font-size: 16px;
+}
+
+.button-add-timer:hover {
+    background-color: black;
+    color: white;
+}
+
+.button-add {
+    background-color: #deff04;
+    color: black;
+    font-size: 16px;
+    font-weight: 400;
+    margin-top: 8px;
+}
+
+.button-add:hover {
+    background-color: #b8d513;
+    color: black;
+}
+
+.button-save {
+    background-color: #f8446e;
+    color: black;
+    font-size: 16px;
+}
+
+.button-save:hover {
+    background-color: black;
+    color: white;
+}
+
+.edit-save {
+    background-color: #deff04;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.edit-save:hover {
+    background-color: #b8d513;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.edit-cancel {
+    background-color: #e5e5e5;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.edit-cancel:hover {
+    background-color: #d0d0d0;
+    font-size: 12px;
+    margin-top: 4px;
+}

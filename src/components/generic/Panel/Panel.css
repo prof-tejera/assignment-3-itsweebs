@@ -1,0 +1,17 @@
+.control-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.start-button-container, .buttons-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.button-start, .button-reset, .button-end {
+    margin: 0 4px; 
+}
+
+  
